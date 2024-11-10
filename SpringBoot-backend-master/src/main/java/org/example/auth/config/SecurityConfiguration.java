@@ -33,9 +33,8 @@ public class SecurityConfiguration {
         http.cors().and()
                 .csrf()
                 .disable()
-
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**")
+                .requestMatchers("/auth/**", "/api/news/fetch", "/api/news/financial","/api/nyse","/api/nifty") // Explicitly permit both endpoints
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -48,6 +47,7 @@ public class SecurityConfiguration {
 
         return http.build();
     }
+
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
