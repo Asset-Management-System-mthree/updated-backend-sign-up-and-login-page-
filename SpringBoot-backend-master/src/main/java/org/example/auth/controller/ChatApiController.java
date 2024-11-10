@@ -15,7 +15,6 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4200")
 public class ChatApiController {
 
     private final WebClient webClient;
