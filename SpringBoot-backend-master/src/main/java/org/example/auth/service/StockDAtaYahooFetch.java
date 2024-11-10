@@ -3,6 +3,8 @@ package org.example.auth.service;
 import org.example.auth.entity.StockData;
 import org.example.auth.repo.StockDataRepository;
 import org.example.auth.response.YahooFinanceResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -22,7 +25,7 @@ public class StockDAtaYahooFetch {
     private StockDataRepository stockDataRepository;
 
     private static final String YAHOO_FINANCE_API_URL = "https://query1.finance.yahoo.com/v8/finance/chart/";
-
+    //private static final Logger logger = LoggerFactory.getLogger(StockDAtaYahooFetch.class);
     // List of stock symbols to fetch
     private static final List<String> STOCK_SYMBOLS = List.of(
             "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "BRK.B", "NVDA",
@@ -64,30 +67,32 @@ public class StockDAtaYahooFetch {
 
             for (int i = 0; i < response.getChart().getResult()[0].getTimestamp().length; i++) {
                 Long timestamp = response.getChart().getResult()[0].getTimestamp()[i];
+                LocalDate stockDate = LocalDate.ofEpochDay(timestamp / 86400);
 
-                // Convert timestamp to LocalDate
-                LocalDate stockDate = LocalDate.ofEpochDay(timestamp / 86400); // Convert seconds to days
-
-                // Check if the date is valid before inserting
                 if (stockDate.getYear() >= 1970 && stockDate.getYear() <= 9999) {
-                    StockData stockData = new StockData();
-                    stockData.setStockSymbol(symbol);
-                    stockData.setDate(stockDate);
-                    stockData.setOpen(BigDecimal.valueOf(response.getChart().getResult()[0].getIndicators().getQuote()[0].getOpen()[i]));
-                    stockData.setHigh(BigDecimal.valueOf(response.getChart().getResult()[0].getIndicators().getQuote()[0].getHigh()[i]));
-                    stockData.setLow(BigDecimal.valueOf(response.getChart().getResult()[0].getIndicators().getQuote()[0].getLow()[i]));
-                    stockData.setClose(BigDecimal.valueOf(response.getChart().getResult()[0].getIndicators().getQuote()[0].getClose()[i]));
-                    stockData.setVolume(response.getChart().getResult()[0].getIndicators().getQuote()[0].getVolume()[i]);
+                    if (stockDataRepository.findByStockSymbolAndDate(symbol, stockDate).isEmpty()) {
+                        StockData stockData = new StockData();
+                        stockData.setStockSymbol(symbol);
+                        stockData.setDate(stockDate);
+                        stockData.setOpen(BigDecimal.valueOf(response.getChart().getResult()[0].getIndicators().getQuote()[0].getOpen()[i]));
+                        stockData.setHigh(BigDecimal.valueOf(response.getChart().getResult()[0].getIndicators().getQuote()[0].getHigh()[i]));
+                        stockData.setLow(BigDecimal.valueOf(response.getChart().getResult()[0].getIndicators().getQuote()[0].getLow()[i]));
+                        stockData.setClose(BigDecimal.valueOf(response.getChart().getResult()[0].getIndicators().getQuote()[0].getClose()[i]));
+                        stockData.setVolume(response.getChart().getResult()[0].getIndicators().getQuote()[0].getVolume()[i]);
 
-                    stockDataList.add(stockData);
+                        stockDataList.add(stockData);
+                    } else {
+                        System.out.println("Duplicate entry for " + symbol + " on " + stockDate);
+                    }
                 } else {
-                    // Log or handle the invalid date case
                     System.out.println("Invalid date for symbol " + symbol + ": " + stockDate);
                 }
             }
 
-            // Save the stock data to the database in batch
             stockDataRepository.saveAll(stockDataList);
         }
     }
+
+
+
 }
