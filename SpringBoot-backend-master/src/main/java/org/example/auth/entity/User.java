@@ -1,6 +1,7 @@
 package org.example.auth.entity;
 
 import jakarta.persistence.*;
+import org.antlr.v4.runtime.misc.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,6 +17,7 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
     private Integer id;
+
 
     @Column(nullable = false)
     private String fullName;
