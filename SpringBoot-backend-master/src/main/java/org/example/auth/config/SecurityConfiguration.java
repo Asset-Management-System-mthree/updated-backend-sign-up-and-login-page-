@@ -36,6 +36,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests()
                 .requestMatchers("/auth/**", "/api/news/fetch", "/api/news/financial","/api/nyse","/api/nifty") // Explicitly permit both endpoints
                 .permitAll()
+                .requestMatchers("/api/custom-message").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
