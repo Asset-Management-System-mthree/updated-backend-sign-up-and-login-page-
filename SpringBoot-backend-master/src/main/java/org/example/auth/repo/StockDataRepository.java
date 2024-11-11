@@ -16,5 +16,6 @@ public interface StockDataRepository extends JpaRepository<StockData, Long> {
 
     Optional<StockData> findByStockSymbolAndDate(String stockSymbol, LocalDate date);
 
-    Optional<LocalDate> findTopByStockSymbolOrderByDateDesc(String stockSymbol);
+    // Method to get the latest stock data by symbol
+    Optional<StockData> findTopByStockSymbolOrderByDateDesc(String stockSymbol);
 }

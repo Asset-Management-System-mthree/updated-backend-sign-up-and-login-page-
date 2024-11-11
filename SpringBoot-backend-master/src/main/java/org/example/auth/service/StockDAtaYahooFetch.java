@@ -93,6 +93,10 @@ public class StockDAtaYahooFetch {
         }
     }
 
+    public Optional<StockData> getLatestStockData(String symbol) {
+        return stockDataRepository.findTopByStockSymbolOrderByDateDesc(symbol);
+    }
+
 
 
 }
