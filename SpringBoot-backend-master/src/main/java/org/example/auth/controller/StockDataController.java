@@ -1,5 +1,6 @@
 package org.example.auth.controller;
 
+import org.example.auth.entity.StockData;
 import org.example.auth.service.StockDAtaYahooFetch;
 import org.example.auth.service.StockDataAnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/stocks")
@@ -42,6 +44,25 @@ public class StockDataController {
             @PathVariable String symbol) {
         Map<String, BigDecimal> percentageChanges = stockDataAnalysisService.getPercentageIncrease(symbol);
         return ResponseEntity.ok(percentageChanges);
+    }
+
+
+    @PostMapping("/latest-price")
+    public ResponseEntity<Map<String, Object>> getLatestStockPrice(@RequestBody Map<String, String> request) {
+        String symbol = request.get("symbol");
+        Optional<StockData> latestStockData = stockDAtaYahooFetch.getLatestStockData(symbol);
+
+        if (latestStockData.isPresent()) {
+            StockData stockData = latestStockData.get();
+            Map<String, Object> response = Map.of(
+                    "symbol", stockData.getStockSymbol(),
+                    "date", stockData.getDate(),
+                    "latestPrice", stockData.getClose()
+            );
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(404).body(Map.of("error", "Stock data not found for symbol: " + symbol));
+        }
     }
 
 

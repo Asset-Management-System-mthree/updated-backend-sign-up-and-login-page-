@@ -9,8 +9,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface StockDataRepository extends JpaRepository<StockData, Long> {
     List<StockData> findByStockSymbolAndDateBetween(String stockSymbol, LocalDate startDate, LocalDate endDate);
 
+    Optional<StockData> findByStockSymbolAndDate(String stockSymbol, LocalDate date);
+
+    // Method to get the latest stock data by symbol
+    Optional<StockData> findTopByStockSymbolOrderByDateDesc(String stockSymbol);
 }
